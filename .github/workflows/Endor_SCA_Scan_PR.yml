@@ -32,8 +32,6 @@ jobs:
             enable_github_action_token: true
             scan_dependencies: true
             pr: true
-            pr_baseline: main # develop, etc
-            additional_args: "--pr-incremental" # Additional parameters can be passed with whitespace separation, for example: --github to enable RSPM
             enable_pr_comments: true # <-- Uncomment to enable PR comments if enabled comment out pr_baseline
             github_token: ${{ secrets.GH_TOKEN }} # needs to be enabled if you want to use enable_pr_comments
             scan_secrets: true # <-- Uncomment to enable secrets scanning
