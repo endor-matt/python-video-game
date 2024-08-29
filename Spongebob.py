@@ -327,3 +327,4 @@ while adventure_choice != 'q':
         sys.exit()
     else:
         print("Invalid input!")
+
