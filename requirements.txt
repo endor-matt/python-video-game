@@ -1,11 +1,11 @@
 astroid==2.15.7
-cryptography==39.0.1
-django==4.2
-future==0.18.1
+cryptography==43.0.1
+django==4.2.27
+future==0.18.3
 isort==4.3.21
 lazy-object-proxy==1.4.3
 mccabe==0.6.1
-Pillow==9.2.0
+Pillow==10.2.0
 pygame==2.5.2
 pygithub==1.59.0
 pylint==2.17.5
