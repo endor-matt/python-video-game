@@ -5,12 +5,18 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 from pygame import *
 from time import *
 from PIL import Image
-from random import *
-import tensorflow as tf
+import secrets
 import sys
 
-a = tf.constant([[4, 4], [3, 3]])
-print(a)
+
+def secure_randint(low, high):
+    """Generate a random integer between low and high (inclusive).
+    
+    Uses secrets module for cryptographically secure random numbers.
+    While not strictly necessary for game mechanics, this satisfies
+    security scanners and follows best practices.
+    """
+    return low + secrets.randbelow(high - low + 1)
 
 def menu_sleep():
     # Sleep for 3.5 seconds during the menu presentation
@@ -76,7 +82,7 @@ def krusty_krab():
     # Picks a random number between 3 and 7
     # Conditional is 10, so if the random number is 5, the user has to "flip"
     # the patty 5 more times to reach 10
-    number_flips = randint(3, 7)
+    number_flips = secure_randint(3, 7)
     while number_flips < 10:
         flip = input("Flip! ").lower()
         if flip == 'f':
@@ -181,7 +187,7 @@ def jellyfishing_patrick():
     # Each loop up to the random number increases the count by 1
     # Once the count reaches a certain number, display the picture of spongebob catching the jellyfish
 
-    run_input = randint(5, 8)
+    run_input = secure_randint(5, 8)
     while run_input < 15:
         run = input("Run, Spongebob, run! ").lower()
         if run == 'r':
@@ -240,7 +246,7 @@ def sandy_karate():
     # Once the count reaches a certain number, display the picture of Spongebob doing karate
 
     chop = " "
-    chop_num = randint(5, 7)
+    chop_num = secure_randint(5, 7)
     while chop_num < 15:
         chop = input("HIIII-YAA! ").lower()
         if chop == 'chop':
