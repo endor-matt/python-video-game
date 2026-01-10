@@ -7,6 +7,10 @@ from time import *
 from PIL import Image
 import secrets
 import sys
+import json
+from datetime import datetime
+
+SCORES_FILE = 'high_scores.json'
 
 
 def secure_randint(low, high):
@@ -17,6 +21,85 @@ def secure_randint(low, high):
     security scanners and follows best practices.
     """
     return low + secrets.randbelow(high - low + 1)
+
+
+def load_scores():
+    """Load high scores from the JSON file."""
+    if os.path.exists(SCORES_FILE):
+        with open(SCORES_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return {"krusty_krab": [], "jellyfishing": [], "karate": []}
+
+
+def save_scores(scores):
+    """Save high scores to the JSON file."""
+    with open(SCORES_FILE, 'w', encoding='utf-8') as f:
+        json.dump(scores, f, indent=2)
+
+
+def add_score(adventure_name, player_name, score):
+    """Add a new score for a specific adventure."""
+    scores = load_scores()
+    new_entry = {
+        "name": player_name,
+        "score": score,
+        "date": datetime.now().strftime("%Y-%m-%d %H:%M")
+    }
+    scores[adventure_name].append(new_entry)
+    scores[adventure_name] = sorted(
+        scores[adventure_name], 
+        key=lambda x: x["score"], 
+        reverse=True
+    )[:10]
+    save_scores(scores)
+    return scores[adventure_name]
+
+
+def display_high_scores(adventure_name=None):
+    """Display high scores for one or all adventures."""
+    scores = load_scores()
+    
+    if adventure_name:
+        adventures = [adventure_name]
+    else:
+        adventures = ["krusty_krab", "jellyfishing", "karate"]
+    
+    adventure_display_names = {
+        "krusty_krab": "Krusty Krab",
+        "jellyfishing": "Jellyfishing with Patrick",
+        "karate": "Karate with Sandy"
+    }
+    
+    print("\n" + "=" * 40)
+    print("HIGH SCORES")
+    print("=" * 40)
+    
+    for adv in adventures:
+        print(f"\n{adventure_display_names.get(adv, adv)}:")
+        print("-" * 30)
+        if scores[adv]:
+            for i, entry in enumerate(scores[adv][:5], 1):
+                print(f"  {i}. {entry['name']}: {entry['score']} pts ({entry['date']})")
+        else:
+            print("  No scores yet!")
+    print("=" * 40 + "\n")
+
+
+def prompt_save_score(adventure_name, score):
+    """Prompt the user to save their score."""
+    print(f"\nYour score: {score} points!")
+    save_choice = input("Would you like to save your score? (y/n): ").lower()
+    if save_choice == 'y':
+        player_name = input("Enter your name: ").strip()
+        if not player_name:
+            player_name = "Anonymous"
+        if len(player_name) > 20:
+            player_name = player_name[:20]
+        high_scores = add_score(adventure_name, player_name, score)
+        print(f"\nScore saved! Here are the top scores for this adventure:")
+        for i, entry in enumerate(high_scores[:5], 1):
+            print(f"  {i}. {entry['name']}: {entry['score']} pts")
+
 
 def menu_sleep():
     # Sleep for 3.5 seconds during the menu presentation
@@ -153,6 +236,9 @@ def krusty_krab():
         print("You missed " + str(wrong_input) + " ingredients!")
         print("Mr. Krabs is not going to be happy - you need to brush up on your Krabby Patty training!")
 
+    score = max(0, 100 - (wrong_input * 10))
+    return score
+
 
 def jellyfishing_patrick():
     """Adventure choice 2 - Go jellyfishing with Patrick
@@ -210,6 +296,7 @@ def jellyfishing_patrick():
         show_jellyfishing()
 
     print("Great job - you caught the jellyfish!")
+    return 100
 
 
 def sandy_karate():
@@ -263,6 +350,7 @@ def sandy_karate():
         show_karate()
 
     print("You did it! HIIII-YAAAA!!!")
+    return 100
 
 
 mixer.init()
@@ -307,6 +395,8 @@ print("Press 2 to go jellyfishing with Patrick")
 menu_sleep()
 print("Press 3 to practice karate with Sandy")
 menu_sleep()
+print("Press 4 to view high scores")
+menu_sleep()
 print("To quit, just enter the letter q")
 menu_sleep()
 
@@ -317,20 +407,25 @@ while adventure_choice != 'q':
     adventure_choice = input("What adventure would you like to go on today?! ")
 
     if adventure_choice == str(1):
-        krusty_krab()
+        score = krusty_krab()
         mixer.music.stop()
+        prompt_save_score("krusty_krab", score)
         if not play_again():
             sys.exit()
     elif adventure_choice == str(2):
-        jellyfishing_patrick()
+        score = jellyfishing_patrick()
         mixer.music.stop()
+        prompt_save_score("jellyfishing", score)
         if not play_again():
             sys.exit()
     elif adventure_choice == str(3):
-        sandy_karate()
+        score = sandy_karate()
         mixer.music.stop()
+        prompt_save_score("karate", score)
         if not play_again():
             sys.exit()
+    elif adventure_choice == str(4):
+        display_high_scores()
     elif adventure_choice == 'q':
         print("Thanks for playing, we hope you had fun!!")
         sys.exit()
